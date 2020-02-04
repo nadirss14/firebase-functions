@@ -1,8 +1,36 @@
 const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const usuarioController = require("./components/users/UserController.js");
+const notificacionController = require("./components/notifications/NotificationsController.js");
+const postsController = require("./components/posts/PostsController.js");
+const errorController = require("./components/error/ErrorController.js");
+const analiticasController = require("./components/analytics/AnalyticsController.js");
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-exports.helloWorld = functions.https.onRequest((request, response) => {
-  response.send("Hello from Firebase!");
-});
+admin.initializeApp();
+admin.firestore().settings({});
+
+// firebase functions:config:set configuration.email="XXXX" configuration.password="XXXXXX"
+// firebase functions:config:set configuration.claveapihubspot="XXXX"
+// firebase functions:config:set configuration.numcelularerror="XXXX"
+// firebase functions:config:set configuration.accountsidtwilio="XXXX"
+// firebase functions:config:set configuration.authtokentwilio="XXXX"
+
+exports.creacionUsuario = functions.auth
+  .user()
+  .onCreate(usuarioController.usuarioCreacionController);
+
+exports.eliminacionUsuario = functions.auth
+  .user()
+  .onDelete(usuarioController.usuarioEliminadoController);
+
+exports.creacionUsuarioCRM = functions.auth
+  .user()
+  .onCreate(usuarioController.creacionUsuarioCRM);
+
+exports.registrarTopico = functions.firestore
+  .document("/tokens/{id}")
+  .onCreate(notificacionController.creacionTokenController);
+
+exports.enviarNotificacion = functions.firestore
+  .document("posts/{idPost}")
+  .onUpdate(postsController.actualizacionPostController);
